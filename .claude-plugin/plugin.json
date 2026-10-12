@@ -1,0 +1,20 @@
+{
+  "name": "usage-meter",
+  "version": "1.0.0",
+  "description": "A live Session pane and a control bar for Claude Code: memory and limits used, model and effort pickers, agent progress, plugins and connectors.",
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "blockEmDashes": {
+      "type": "boolean",
+      "title": "Block em dashes",
+      "description": "Refuse writes that put an em dash in a .md, .txt, .html or .csv file (or any file name) and ask Claude to rewrite.",
+      "default": false
+    }
+  },
+  "author": {
+    "name": "Rezwan Islam",
+    "url": "https://buildwithrez.com"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/Rezwan3App/claude-usage-meter"
+}

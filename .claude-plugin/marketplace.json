@@ -1,0 +1,13 @@
+{
+  "name": "claude-usage-meter",
+  "owner": {
+    "name": "Rezwan Islam"
+  },
+  "plugins": [
+    {
+      "name": "usage-meter",
+      "source": "./",
+      "description": "A live Session pane and a control bar for Claude Code: memory and limits used, model and effort pickers, agent progress, plugins and connectors."
+    }
+  ]
+}
