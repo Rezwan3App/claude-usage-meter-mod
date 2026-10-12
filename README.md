@@ -42,7 +42,7 @@ You need Claude Code **2.1.275 or later** (terminal or the desktop app's Code ta
 In any Claude Code session, type:
 
 ```
-/plugin install usage-meter --marketplace Rezwan3App/claude-usage-meter
+/plugin install usage-meter --marketplace Rezwan3App/claude-usage-meter-mod
 ```
 
 1. Answer `y` when it asks to add the marketplace.
