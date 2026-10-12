@@ -1,14 +1,18 @@
-# 📊 usage-meter for Claude Code
+<p align="center"><img src="docs/icon.png" alt="usage-meter icon" width="120"></p>
+
+<h1 align="center">usage-meter for Claude Code</h1>
 
 See what your Claude Code session is doing at a glance: how full the conversation is, how much of your limits you've used, which agents are working, and which model you're on. Switch model, effort and agent count from a bar right above the chat box.
 
-<p>
-  <img src="docs/band.png" alt="Control bar above the chat box: Model, Effort and Agents dropdowns, the working folder, and a progress bar at 80% with 4 of 5 agents done" width="720">
-</p>
+## 🖼️ Demo
 
-<p>
-  <img src="docs/pane.png" alt="Session pane: a memory ring at 11% used, 5-hour and 7-day limit bars, token totals, a list of running and finished agents, and a Setup section with installed plugins" width="420">
-</p>
+**Control bar, right above the chat box**
+
+![Control bar above the chat box: Model, Effort and Agents dropdowns, the working folder, and a progress bar at 80% with 4 of 5 agents done](docs/band.png)
+
+**Session pane, docked on the right**
+
+![Session pane: a memory ring at 11% used, 5-hour and 7-day limit bars, token totals, running and finished agents, and a Setup section with installed plugins](docs/pane.png)
 
 ## ✨ What you get
 
