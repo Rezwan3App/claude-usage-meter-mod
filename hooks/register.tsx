@@ -3,13 +3,6 @@ import type { AgentInfo, Register } from 'claude-code'
 
 import type { Agent, Call, Mood, PluginRow, Reading, Rec, Totals } from '../types'
 
-type Host = {
-  store: { get: (k: string) => Promise<unknown>; set: (k: string, v: unknown) => Promise<void>; keys: () => Promise<string[]> }
-  session: { id: () => Promise<string> }
-  clock: { now: () => Promise<number>; after: (ms: number, fn: () => void) => unknown }
-  state: { get: (ref: any) => Promise<{ value?: any }>; set: (ref: any, v: any) => Promise<unknown> }
-}
-
 const PANE = 'usage-meter'
 const ZERO: Rec = { tokIn: 0, tokOut: 0 }
 const TOTALS = { plugin: 'usage-meter', key: 'totals' } as const
@@ -52,9 +45,7 @@ const STAGES: Record<string, [number, string]> = {
   Edit: [60, 'Making changes'], Write: [60, 'Making changes'],
   Bash: [80, 'Running and checking'], PowerShell: [80, 'Running and checking'],
 }
-const STARTED = { plugin: 'usage-meter', key: 'started' } as const
 const CONTEXT = { plugin: 'usage-meter', key: 'context' } as const
-const CACHE = { plugin: 'usage-meter', key: 'cache' } as const
 const HELPERS = { plugin: 'usage-meter', key: 'helpers' } as const
 const OPEN = { plugin: 'usage-meter', key: 'open' } as const
 // Tint behind each pane zone, tuned for the dark theme (mods can't read the app theme).
@@ -73,18 +64,10 @@ export const callDetail = (e: Record<string, unknown>): string | undefined => {
   }
   return undefined
 }
-// Subscription sessions keep the prompt cache for an hour after each request.
-const CACHE_TTL_MS = 60 * 60 * 1000
-
-const LABEL: Record<string, string> = { seven_day: 'Weekly', five_hour: '5-hour', spend_limit: 'Spend limit' }
 // Each agent gets its own color, cycling.
 const HUES = ['claude', 'suggestion', 'success', 'warning', 'merged', 'planMode'] as const
 
 export const fmtTok = (n: number) => (n >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `${(n / 1e3).toFixed(1)}k` : `${n}`)
-export const bar = (frac: number, width: number) => {
-  const n = Math.round(Math.max(0, Math.min(1, frac)) * width)
-  return '█'.repeat(n) + '░'.repeat(width - n)
-}
 // A bar as two parts, so the empty track can be drawn quieter than the fill.
 export const barParts = (frac: number, width: number) => {
   const n = Math.round(Math.max(0, Math.min(1, frac)) * width)
@@ -108,10 +91,6 @@ export const clock = (ms: number) => {
   const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = String(s % 60).padStart(2, '0')
   return h ? `${h}:${String(m).padStart(2, '0')}:${sec}` : `${m}:${sec}`
 }
-// Words as well as color, so the level reads without color vision.
-export const level = (left: number) =>
-  left <= 10 ? { word: 'Almost out', color: 'error' } : left <= 30 ? { word: 'Running low', color: 'warning' } : { word: 'Plenty left', color: 'success' }
-
 const secs = (ms: number) => (ms >= 60000 ? `${Math.floor(ms / 60000)}m ${Math.round((ms % 60000) / 1000)}s` : `${Math.max(1, Math.round(ms / 1000))}s`)
 export const moodFor = (reason: string, durationMs: number): Mood =>
   reason === 'answer'
@@ -168,22 +147,11 @@ export const ringSvg = (pct: number, size = 36, color?: string) => {
     + `<circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${arc}" stroke-width="4" stroke-linecap="round"`
     + ` stroke-dasharray="${(c * f).toFixed(2)} ${c.toFixed(2)}" transform="rotate(-90 ${size / 2} ${size / 2})"/></svg>`
 }
-// The cache's hour as a ring that empties: green, amber under 20 minutes, red under 5, grey once cold.
-export const cacheLook = (msLeft: number) =>
-  msLeft <= 0 ? { word: 'Cold', color: 'error', hex: '#8a8f98' }
-  : msLeft < 5 * 60000 ? { word: 'Cooling', color: 'error', hex: '#e5484d' }
-  : msLeft < 20 * 60000 ? { word: 'Cooling', color: 'warning', hex: '#e5a00d' }
-  : { word: 'Warm', color: 'success', hex: '#3fb950' }
-// Share of the last reply's input served from cache.
-export const hitRate = (u: { input_tokens: number; cache_read_input_tokens: number; cache_creation_input_tokens: number }) => {
-  const all = u.input_tokens + u.cache_read_input_tokens + u.cache_creation_input_tokens
-  return all > 0 ? (u.cache_read_input_tokens / all) * 100 : 0
-}
 // Where there's no SVG (the terminal): a quarter-step glyph.
 export const ringGlyph = (pct: number) => (pct >= 88 ? '●' : pct >= 63 ? '◕' : pct >= 38 ? '◑' : pct >= 13 ? '◔' : '○')
 
 // Two hops: up, down, up, down.
-function hop($: Host, mood: Mood) {
+function hop($: any, mood: Mood) {
   void $.state.set(MOOD, { ...mood, up: true })
   $.clock.after(180, () => void $.state.set(MOOD, { ...mood, up: false }))
   $.clock.after(360, () => void $.state.set(MOOD, { ...mood, up: true }))
@@ -223,7 +191,7 @@ export async function syncAgents($: any) {
 }
 
 // One store key per session id ("s:<id>"), so a resumed session updates its own row.
-async function sum($: Host): Promise<Totals> {
+async function sum($: any): Promise<Totals> {
   const key = `s:${await $.session.id()}`
   const all = { ...ZERO }
   let cur = { ...ZERO }
@@ -238,13 +206,13 @@ async function sum($: Host): Promise<Totals> {
   return { cur, all, sessions }
 }
 
-async function addTokens($: Host, input: number, output: number) {
+async function addTokens($: any, input: number, output: number) {
   const key = `s:${await $.session.id()}`
   const rec = { ...ZERO, ...((await $.store.get(key)) as Partial<Rec> | undefined) }
   await $.store.set(key, { tokIn: rec.tokIn + input, tokOut: rec.tokOut + output })
 }
 
-async function saveLimits($: Host, raw: { kind: string; percentUsed: number; resetsAt?: string }[]) {
+async function saveLimits($: any, raw: { kind: string; percentUsed: number; resetsAt?: string }[]) {
   if (raw.length === 0) return
   const now = await $.clock.now()
   const r: Reading = {
@@ -257,7 +225,8 @@ async function saveLimits($: Host, raw: { kind: string; percentUsed: number; res
   await $.store.set('limits', r)
 }
 
-// Installed plugins from ~/.claude/plugins, each with its manifest's one-liner.
+const home = async ($: any) => (await $.env.get('USERPROFILE')) ?? (await $.env.get('HOME'))
+
 // One toast the first time context crosses 85%, so compaction never surprises.
 async function saveContext($: any, percent: number | undefined) {
   if (percent === undefined) return
@@ -268,9 +237,8 @@ async function saveContext($: any, percent: number | undefined) {
 
 // Connectors the claude.ai account has connected, as ~/.claude.json records them.
 async function loadConnectors($: any) {
-  const home = (await $.env.get('USERPROFILE')) ?? (await $.env.get('HOME'))
   let names: string[] = []
-  try { names = JSON.parse(await $.fs.read(`${home}/.claude.json`)).claudeAiMcpEverConnected ?? [] } catch {}
+  try { names = JSON.parse(await $.fs.read(`${await home($)}/.claude.json`)).claudeAiMcpEverConnected ?? [] } catch {}
   const rows = names.map(n => n.replace(/^claude\.ai /, '')).sort((a, b) => a.localeCompare(b))
     .map(name => ({ name, description: CONNECTOR_NOTES[name] ?? 'Connected through claude.ai.', enabled: true }))
   await $.state.set(CONNECTORS, rows)
@@ -286,11 +254,12 @@ export const emDashIn = (args: Record<string, unknown>) => {
   return edits.some(x => String(x.content ?? x.new_string ?? x.new_source ?? '').includes('—')) ? 'the text' : undefined
 }
 
+// Installed plugins from ~/.claude/plugins, each with its manifest's one-liner.
 async function loadPlugins($: any) {
-  const home = (await $.env.get('USERPROFILE')) ?? (await $.env.get('HOME'))
+  const dir = `${await home($)}/.claude`
   const json = async (path: string) => { try { return JSON.parse(await $.fs.read(path)) } catch { return undefined } }
-  const installed = await json(`${home}/.claude/plugins/installed_plugins.json`)
-  const enabled = (await json(`${home}/.claude/settings.json`))?.enabledPlugins ?? {}
+  const installed = await json(`${dir}/plugins/installed_plugins.json`)
+  const enabled = (await json(`${dir}/settings.json`))?.enabledPlugins ?? {}
   const list: PluginRow[] = []
   for (const [id, copies] of Object.entries(installed?.plugins ?? {}) as [string, { installPath: string }[]][]) {
     const manifest = await json(`${copies[0]?.installPath}/.claude-plugin/plugin.json`)
@@ -309,18 +278,16 @@ export const register: Register = (on, options) => {
 
   on('session.start', async ($, e, next) => {
     await $.command.register({ name: 'usage-meter', description: 'Show the session pane (limits, tokens, agents)' })
-    $.ui.status(undefined)
     await $.state.set(TOTALS, await sum($))
     const saved = (await $.store.get('limits')) as Reading | undefined
     if (saved) await $.state.set(READING, saved)
     const usage = await $.session.usage()
-    await $.state.set(STARTED, usage.startedAt)
     await saveContext($, usage.context.percent)
     await saveLimits($, usage.rateLimits)
     await $.state.set(MOOD, { face: 'idle', up: false, note: 'Ready when you are' })
     await loadPlugins($)
     await loadConnectors($)
-    // One tick a second drives the Time card and the running agents' sweep.
+    // One tick a second redraws the band and the running agents' sweep.
     $.clock.every(1000, () => void $.clock.now().then(t => $.state.set(NOW, t)))
     $.clock.every(3000, () => void syncAgents($).catch(() => {}))
     void syncAgents($).catch(() => {})
@@ -423,13 +390,6 @@ export const register: Register = (on, options) => {
       const state = e.reason === 'answer' ? 'done' : 'failed'
       await editAgents($, list => list.map(a => (a.id === id ? { ...a, tokens: a.tokens + used, ms: e.durationMs, state } : a)))
     } else {
-      if (u) {
-        await $.state.set(CACHE, {
-          lastAt: await $.clock.now(),
-          tokens: usage.context.tokens ?? u.input_tokens + u.cache_read_input_tokens + u.cache_creation_input_tokens,
-          hit: hitRate(u),
-        })
-      }
       // Only the main loop moves the big mascot.
       const mood = moodFor(e.reason, e.durationMs)
       if (mood.face === 'happy') hop($, mood)
@@ -457,7 +417,7 @@ export const register: Register = (on, options) => {
     await $.state.get(NOW) // ticks every second, so the band redraws
     const { value: effort = '' } = await $.state.get(EFFORT)
     const model = modelName(await $.session.model())
-    const where = splitPath(await $.session.cwd(), (await $.env.get('USERPROFILE')) ?? (await $.env.get('HOME')))
+    const where = splitPath(await $.session.cwd(), await home($))
     const done = agents.filter(a => a.state !== 'running').length
     const busy = e.props.isWorking || done < agents.length
     const frac = agents.length ? done / agents.length : 0
@@ -517,14 +477,14 @@ export const register: Register = (on, options) => {
     const weekly = r?.limits.find(l => l.kind === 'seven_day')
     const fiveHour = r?.limits.find(l => l.kind === 'five_hour')
 
+    const flip = (id: string) => () =>
+      void update($, OPEN, ids => (ids ?? []).includes(id) ? (ids ?? []).filter(x => x !== id) : [...(ids ?? []), id])
     const row = (a: Agent, i: number) => {
       const hue = HUES[i % HUES.length] ?? 'claude'
       const running = a.state === 'running'
       const ms = running ? now - a.startedAt : a.ms
       const width = Math.max(8, cols - 9)
       const isOpen = open.includes(a.id)
-      const toggle = () =>
-        void update($, OPEN, ids => (ids ?? []).includes(a.id) ? (ids ?? []).filter(x => x !== a.id) : [...(ids ?? []), a.id])
       const calls = a.calls ?? []
       return (
         <Box key={a.id} gap={1} paddingBottom={1}>
@@ -543,7 +503,7 @@ export const register: Register = (on, options) => {
             </Box>
             <Text wrap="truncate-end"><Text color={hue}>{a.type}</Text><Text dimColor> {a.model}</Text></Text>
             <Box justifyContent="space-between">
-              <Button key={`calls-${a.id}`} plain dimColor onPress={toggle}>
+              <Button key={`calls-${a.id}`} plain dimColor onPress={flip(a.id)}>
                 {`${isOpen ? '▾' : '▸'} ${a.tools} tool ${a.tools === 1 ? 'call' : 'calls'}`}
               </Button>
               <Text dimColor>{a.tokens ? `${fmtTok(a.tokens)} tokens, ` : ''}{clock(ms)}</Text>
@@ -559,7 +519,7 @@ export const register: Register = (on, options) => {
               </Box>
             )}
             {/* Desktop draws block glyphs wider than a column, so cut at the edge rather than wrap. */}
-            <Text color={hue} wrap="truncate-end">{running ? sweep(Math.floor(now / 1000), width) : bar(1, width)}</Text>
+            <Text color={hue} wrap="truncate-end">{running ? sweep(Math.floor(now / 1000), width) : '█'.repeat(width)}</Text>
           </Box>
         </Box>
       )
@@ -584,8 +544,6 @@ export const register: Register = (on, options) => {
     }
     const enabled = plugins.filter(pl => pl.enabled)
     const off = plugins.filter(pl => !pl.enabled)
-    const flip = (id: string) => () =>
-      void update($, OPEN, ids => (ids ?? []).includes(id) ? (ids ?? []).filter(x => x !== id) : [...(ids ?? []), id])
     const itemRow = (kind: string) => (pl: PluginRow) => {
       const id = `${kind}-${pl.name}`
       const isOpen = open.includes(id)

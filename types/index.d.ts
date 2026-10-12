@@ -34,9 +34,7 @@ declare module 'claude-code' {
       connectors: PluginRow[]
       // How many parallel agents to ask for on each prompt; 1 means none.
       helpers: number
-      started: number
       context: number
-      cache: { lastAt: number; tokens: number; hit: number } | null
       // Agent ids whose tool-call list is expanded.
       open: string[]
     }

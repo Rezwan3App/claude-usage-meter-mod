@@ -1,14 +1,12 @@
 import { test, expect } from 'claude-code/testing'
-import { bar, fmtTok, level, modelName, moodFor, splitPath, until, oneLine, emDashIn } from './register'
+import { barParts, fmtTok, modelName, moodFor, splitPath, until, oneLine, emDashIn } from './register'
 
 test('numbers, bars and countdowns', () => {
   expect(fmtTok(346655)).toBe('346.7k')
-  expect(bar(0.25, 8)).toBe('██░░░░░░')
+  expect(barParts(0.25, 8)).toEqual({ fill: '██', track: '──────' })
   const now = Date.parse('2026-10-09T12:00:00Z')
   expect(until('2026-10-12T15:30:00Z', now)).toBe('3d 3h')
   expect(until('2026-10-09T14:05:00Z', now)).toBe('2h 5m')
-  expect(level(5).word).toBe('Almost out')
-  expect(level(72).word).toBe('Plenty left')
 })
 
 test('model and folder', () => {
@@ -35,17 +33,6 @@ test('rings, timer and sweep', () => {
   expect(ringSvg(43)).toContain('#5b8def')
   expect(ringSvg(95)).toContain('#e5484d')
   expect(sweep(0, 10)).toHaveLength(10)
-})
-
-import { cacheLook, hitRate } from './register'
-
-test('cache look and hit rate', () => {
-  expect(cacheLook(45 * 60000).word).toBe('Warm')
-  expect(cacheLook(10 * 60000)).toMatchObject({ word: 'Cooling', color: 'warning' })
-  expect(cacheLook(2 * 60000).color).toBe('error')
-  expect(cacheLook(0).word).toBe('Cold')
-  expect(hitRate({ input_tokens: 10, cache_read_input_tokens: 980, cache_creation_input_tokens: 10 })).toBe(98)
-  expect(hitRate({ input_tokens: 0, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 })).toBe(0)
 })
 
 test('a plugin description is cut to its first sentence', () => {

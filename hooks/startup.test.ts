@@ -15,7 +15,6 @@ function engine(on: any, store: Record<string, unknown>, state: Record<string, u
   on('store.get', ($: any, e: any) => ({ value: store[e.key] }))
   on('store.set', ($: any, e: any) => ((store[e.key] = e.value), { value: undefined }))
   on('store.keys', () => ({ value: Object.keys(store) }))
-  on('ui.status', () => ({ value: undefined }))
   on('ui.open', () => ({ value: { isPlaced: true } }))
   on('clock.now', () => ({ value: now }))
   on('clock.every', () => ({ value: undefined }) as never)
