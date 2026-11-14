@@ -7,7 +7,7 @@
     {
       "name": "usage-meter",
       "source": "./",
-      "description": "A live Session pane and a control bar for Claude Code: memory and limits used, model and effort pickers, agent progress, plugins and connectors."
+      "description": "A live Session pane and control bar for Claude Code: usage and limit alerts, live agents with an agent chat, model and effort pickers, and model routing for agents."
     }
   ]
 }

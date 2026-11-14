@@ -1,7 +1,7 @@
 {
   "name": "usage-meter",
   "version": "1.1.0",
-  "description": "A live Session pane and a control bar for Claude Code: memory and limits used, model and effort pickers, agent progress, plugins and connectors.",
+  "description": "A live Session pane and control bar for Claude Code that shows usage, limits and live agents with their agent chat, and routes agents to Haiku, Sonnet or Opus by task.",
   "types": "./types/index.d.ts",
   "userConfig": {
     "blockEmDashes": {
@@ -13,7 +13,7 @@
   },
   "author": {
     "name": "Rezwan Islam",
-    "url": "https://buildwithrez.com"
+    "url": "https://www.buildwithrez.com"
   },
   "license": "MIT",
   "repository": "https://github.com/Rezwan3App/claude-usage-meter-mod"

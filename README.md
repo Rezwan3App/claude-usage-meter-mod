@@ -8,11 +8,11 @@ See what your Claude Code session is doing at a glance: how full the conversatio
 
 **Control bar, right above the chat box**
 
-![Control bar above the chat box: Model, Effort, Agents and Agent talk dropdowns, and the working folder](docs/band.png)
+![Control bar above the chat box: Model set to Fable 5.2, Effort low, Agents 3, Agent talk on, and the working folder path](docs/band.png)
 
 **Session pane, docked on the right**
 
-![Session pane: usage bars for memory and the 5-hour and 7-day limits, running and finished agents, the Agent chat, and a Setup section](docs/pane.png)
+![Session pane: Working bar at 100% with 3 of 3 agents, Usage bars for memory, 5-hour limit and 7-day limit with reset times, one running agent (Claude) and three finished audit agents with token counts and run times, and the start of the Agent chat](docs/pane.png)
 
 ## ✨ What you get
 
@@ -186,4 +186,4 @@ claude plugin test .
 
 ## 📄 License
 
-MIT. Made by [Rezwan Islam](https://buildwithrez.com).
+MIT. Made by [Rezwan Islam](https://www.buildwithrez.com).

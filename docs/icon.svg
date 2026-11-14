@@ -1,11 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" shape-rendering="crispEdges">
   <rect width="512" height="512" rx="112" fill="#162238"/>
-  <circle cx="256" cy="256" r="155" fill="none" stroke="#2c3e5c" stroke-width="34"/>
-  <circle cx="256" cy="256" r="155" fill="none" stroke="#3fb8af" stroke-width="34" stroke-linecap="round" stroke-dasharray="676.4 973.9" transform="rotate(-90 256 256)"/>
-  <rect x="164" y="194" width="184" height="26" rx="13" fill="#2c3e5c"/>
-  <rect x="164" y="194" width="156" height="26" rx="13" fill="#5b8def"/>
-  <rect x="164" y="243" width="184" height="26" rx="13" fill="#2c3e5c"/>
-  <rect x="164" y="243" width="101" height="26" rx="13" fill="#a0bef0"/>
-  <rect x="164" y="292" width="184" height="26" rx="13" fill="#2c3e5c"/>
-  <rect x="164" y="292" width="55" height="26" rx="13" fill="#5b8def"/>
+  <g transform="translate(48 104) scale(8)">
+    <rect x="10" y="28" width="4" height="8" fill="#D97757"/>
+    <rect x="18" y="28" width="4" height="8" fill="#D97757"/>
+    <rect x="30" y="28" width="4" height="8" fill="#D97757"/>
+    <rect x="38" y="28" width="4" height="8" fill="#D97757"/>
+    <rect x="2" y="12" width="8" height="8" fill="#D97757"/>
+    <rect x="42" y="12" width="8" height="8" fill="#D97757"/>
+    <rect x="2" y="12" width="8" height="2" fill="#ffffff" fill-opacity="0.2"/>
+    <rect x="42" y="12" width="8" height="2" fill="#ffffff" fill-opacity="0.2"/>
+    <rect x="12" y="2" width="28" height="2" fill="#D97757"/>
+    <rect x="10" y="4" width="32" height="22" fill="#D97757"/>
+    <rect x="12" y="26" width="28" height="2" fill="#D97757"/>
+    <rect x="12" y="4" width="28" height="3" fill="#ffffff" fill-opacity="0.22"/>
+    <rect x="12" y="23" width="28" height="5" fill="#000000" fill-opacity="0.14"/>
+    <rect x="12" y="19" width="4" height="2" fill="#ff9e9e" fill-opacity="0.7"/>
+    <rect x="36" y="19" width="4" height="2" fill="#ff9e9e" fill-opacity="0.7"/>
+    <rect x="17" y="11" width="4" height="6" fill="#1F1E1D"/>
+    <rect x="18" y="12" width="2" height="2" fill="#ffffff"/>
+    <rect x="31" y="11" width="4" height="6" fill="#1F1E1D"/>
+    <rect x="32" y="12" width="2" height="2" fill="#ffffff"/>
+    <rect x="24" y="19" width="4" height="2" fill="#1F1E1D"/>
+  </g>
 </svg>
