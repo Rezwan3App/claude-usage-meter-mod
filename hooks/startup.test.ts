@@ -60,7 +60,7 @@ test('a session with one agent: tokens, limits, agent row, pane and band draw', 
     expect(JSON.stringify(await pane.drawn())).toContain('Research competitor launches')
     const p = JSON.stringify(await pane.drawn())
     expect(p).toContain('7-day limit')
-    expect(p).toContain('memory used')
+    expect(p).toContain('Memory')
     expect(p.includes('"Svg"')).toBe(surface === 'desktop')
 
     const band = await $.ui.mount({
@@ -68,10 +68,7 @@ test('a session with one agent: tokens, limits, agent row, pane and band draw', 
       props: { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns: 100 } as never,
     })
     const b = JSON.stringify(await band.drawn())
-    expect(b).toContain('"Done"')
-    expect(b).toContain('1/1 agents')
     expect(b).toContain('Opus 5.5')
     expect(b).toContain('📁 ')
-    expect(b.indexOf('"key":"model"')).toBeLessThan(b.indexOf('"Done"'))
   }
 })

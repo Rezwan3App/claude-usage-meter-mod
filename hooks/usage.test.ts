@@ -23,15 +23,58 @@ test('mascot mood follows how the turn ended', () => {
   expect(moodFor('aborted', 1).note).toBe('Interrupted')
 })
 
-import { clock, ringGlyph, ringSvg, sweep } from './register'
+import { alertFor, barSvg, clock, crabSvg, doing, stepLines, sweep, sweepSpan, talkNote, toneFor } from './register'
 
-test('rings, timer and sweep', () => {
+test('limit alerts fire once per line, and again after a reset', () => {
+  expect(alertFor(79, 0)).toEqual({ level: 0, fire: false })
+  expect(alertFor(80, 0)).toEqual({ level: 80, fire: true })
+  expect(alertFor(85, 80)).toEqual({ level: 80, fire: false })
+  expect(alertFor(95, 80)).toEqual({ level: 95, fire: true })
+  expect(alertFor(97, 95)).toEqual({ level: 95, fire: false })
+  expect(alertFor(3, 95)).toEqual({ level: 0, fire: false })
+  expect(alertFor(80, 0).fire).toBe(true)
+})
+
+test('agent steps read like plain actions', () => {
+  expect(doing({ tool: 'Read', detail: 'notes.md' })).toBe('Reading notes.md')
+  expect(doing({ tool: 'mcp__abc__search_threads', detail: 'x' })).toBe('Using search threads')
+  expect(doing(undefined)).toBe('Getting started')
+  expect(doing({ tool: 'Bash', detail: 'cd x; sed -i y' })).toBe('Running a command')
+  expect(doing({ tool: 'Bash', detail: 'cd x', label: 'list the folder' })).toBe('List the folder')
+  expect(doing({ tool: 'Read', detail: 'a-very-long-file-name.md' }, 16)).toBe('Reading a-very-…')
+  const calls = [{ tool: 'Read', detail: 'a.md' }, { tool: 'Read', detail: 'b.md' }, { tool: 'Grep', detail: 'c' }, { tool: 'Write', detail: 'd.md' }]
+  expect(stepLines(calls)).toEqual({ now: 'Writing d.md', before: ['Searching for c', 'Reading b.md'] })
+  expect(stepLines([]).before).toEqual([])
+})
+
+test('the crab stays plain markup and changes between frames', () => {
+  const still = crabSvg('#D97757')
+  expect(still).not.toMatch(/<g|<style|class=|<animate/)
+  expect(crabSvg('#D97757', { frame: 0 })).not.toBe(crabSvg('#D97757', { frame: 1 }))
+  expect(crabSvg('#D97757', { frame: 2 })).toBe(crabSvg('#D97757', { frame: 0 }))
+  expect(crabSvg('#D97757', { blink: true })).not.toBe(still)
+  expect(crabSvg('#D97757', { sad: true })).not.toBe(still)
+  expect(crabSvg('#D97757', { dim: true })).toContain('fill-opacity="0.45"')
+})
+
+test('agent talk names running siblings', () => {
+  expect(talkNote([{ id: 'abc', title: 'Charts' }])).toContain('Charts (id abc)')
+  expect(talkNote([])).toContain('No others are running yet')
+  expect(talkNote([])).toContain('SendMessage')
+})
+
+test('bars, timer and sweep', () => {
   expect(clock(61000)).toBe('1:01')
   expect(clock(3723000)).toBe('1:02:03')
-  expect(ringGlyph(5)).toBe('○')
-  expect(ringGlyph(43)).toBe('◑')
-  expect(ringSvg(43)).toContain('#5b8def')
-  expect(ringSvg(95)).toContain('#e5484d')
+  expect(toneFor(68).hex).toBe('#8b9bb4')
+  expect(toneFor(70).hex).toBe('#f59e0b')
+  expect(toneFor(89).hex).toBe('#f59e0b')
+  expect(toneFor(90).hex).toBe('#ef4444')
+  expect(barSvg(100, '#123456', 0.5)).toContain('width="50.0"')
+  expect(barSvg(100, '#123456', 0)).not.toContain('#123456')
+  expect(barSvg(100, '#123456', 0.9, 0.7)).toContain('x="70.0"')
+  expect(sweepSpan(0).from).toBe(0)
+  expect(sweepSpan(11).to).toBe(1)
   expect(sweep(0, 10)).toHaveLength(10)
 })
 

@@ -1,6 +1,6 @@
 {
   "name": "usage-meter",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A live Session pane and a control bar for Claude Code: memory and limits used, model and effort pickers, agent progress, plugins and connectors.",
   "types": "./types/index.d.ts",
   "userConfig": {

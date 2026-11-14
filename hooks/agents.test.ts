@@ -32,9 +32,12 @@ test('agents started at the same moment are all listed', async ($, on) => {
   )
   const titles = (state.agents?.value as { title: string }[]).map(a => a.title).sort()
   expect(titles).toEqual(['Design review', 'Developer review', 'Product review'])
+  // Each brief is a chat line from Claude, kept as written for Full messages.
+  const chat = state.chat?.value as { from: string; raw: string }[]
+  expect(chat.map(c => `${c.from}:${c.raw}`)).toEqual(['Claude:go', 'Claude:go', 'Claude:go'])
 })
 
-test('an Explore agent with no model named runs on Haiku', async ($, on) => {
+test('an agent with no model named is routed by its task', async ($, on) => {
   const asked: (string | undefined)[] = []
   on('agent.spawn', (_$: any, e: any) => { asked.push(e.model); return { model: e.model ?? 'claude-opus-5-5', agentId: `a${asked.length}` } })
   on('clock.now', () => ({ value: 0 }))
@@ -42,7 +45,12 @@ test('an Explore agent with no model named runs on Haiku', async ($, on) => {
   await $.agent.spawn({ tool_use_id: 't1', prompt: 'find', description: 'Find files', subagentType: 'Explore' } as never)
   await $.agent.spawn({ tool_use_id: 't2', prompt: 'find', description: 'Find files', subagentType: 'Explore', model: 'sonnet' } as never)
   await $.agent.spawn({ tool_use_id: 't3', prompt: 'build', description: 'Build it', subagentType: 'general-purpose' } as never)
-  expect(asked).toEqual(['haiku', 'sonnet', undefined])
+  await $.agent.spawn({ tool_use_id: 't4', prompt: 'p', description: 'Plan the migration', subagentType: 'general-purpose' } as never)
+  await $.agent.spawn({ tool_use_id: 't5', prompt: 'p', description: 'Summarize week 3 notes', subagentType: 'general-purpose' } as never)
+  await $.agent.spawn({ tool_use_id: 't6', prompt: 'p', description: 'Read and fix the parser', subagentType: 'general-purpose' } as never)
+  await $.agent.spawn({ tool_use_id: 't7', prompt: 'p', description: 'Find assets', subagentType: 'impeccable-asset-producer' } as never)
+  await $.agent.spawn({ tool_use_id: 't8', prompt: 'p', description: 'Find files', subagentType: 'general-purpose', isFork: true } as never)
+  expect(asked).toEqual(['haiku', 'sonnet', 'sonnet', 'opus', 'haiku', 'sonnet', undefined, undefined])
 })
 
 test('agents the pane missed are picked up from the engine list', async () => {
