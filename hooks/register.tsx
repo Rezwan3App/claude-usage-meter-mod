@@ -476,6 +476,7 @@ export const register: Register = (on, options) => {
   on('session.start', async ($, e, next) => {
     await $.command.register({ name: 'usage-meter', description: 'Show the session pane (limits, tokens, agents)' })
     await $.state.set(TALK, ((await $.store.get('talk')) as boolean | undefined) ?? true)
+    await $.state.set(CHAT_RAW, false) // Full messages starts off every session
     await loadUsed($).catch(() => undefined) // history is a nicety; never let it stop startup
     await $.state.set(TOTALS, await sum($))
     const saved = (await $.store.get('limits')) as Reading | undefined
